@@ -192,3 +192,11 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# Custom
+logs/*.*
+src/models/*.*
+src/data/*.*
+src/reports/*.*
+src/screenshots/*.*
+.DS_Store
