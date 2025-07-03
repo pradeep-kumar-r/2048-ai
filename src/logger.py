@@ -3,7 +3,7 @@ import os
 from loguru import logger
 from src.config import config
 
-log_path = config.get_logs_config()["LOGS_FOLDER_PATH"]
+log_path = config.get_file_folder_config()["LOGS_FOLDER_PATH"]
 os.makedirs(log_path, exist_ok=True)
 
 logger.remove()
