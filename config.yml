@@ -1,6 +1,8 @@
 UI_CONFIG:
+  # All dimensions are stated in pixels
   WINDOW_WIDTH: 600
   WINDOW_HEIGHT: 700 # Including some extra space for title, scores etc.
+  FPS: 1
   BG_COLOUR: "WHITE"
   TITLE: 
     TEXT: "2048"
@@ -17,6 +19,7 @@ UI_CONFIG:
       NAME: Arial
       SIZE: 12
   TILE:
+    DIM: 90
     PADDING: 10
     FONT:
       NAME: Arial
@@ -42,27 +45,21 @@ UI_CONFIG:
       STYLE: bold
       COLOUR: "RED"
 
-GAME_CONFIG:
-  BOARD_DIM: 10
-  FPS: 1
-  SLEEP_PER_TIMESTEP: 1
-  EPISODES_PER_RENDER: 20
+GAME_ENV_CONFIG:
+  SLEEP_PER_TIMESTEP: 0.9
+  EPISODES_PER_RENDER: 50
   2_TILE_PROBABILITY: 0.9
-  4_TILE_PROBABILITY: 0.1 # 1 - 2 tile probability
+  4_TILE_PROBABILITY: 0.1 # 1 - (2 tile probability)
     
 FILE_FOLDER_CONFIG:
   MODEL_FOLDER_PATH: "models"
   MODEL_NAME_PREFIX: "ai_model_"
   GAME_DATA_FOLDER_PATH: "data"
   SCORES_FILE_PATH: "data/game_scores.txt"
-
-LOGS_CONFIG:
   LOGS_FOLDER_PATH: "logs"
 
-MODEL_CONFIG:
+MODEL_TRAINING_CONFIG: # Change during actual PROD
   NUM_ACTIONS: 4
-  
-TRAINING_CONFIG: # Change during actual PROD
   REWARDS:
     MERGE: 15.0
     DOUBLE: 50.0
@@ -81,7 +78,7 @@ TRAINING_CONFIG: # Change during actual PROD
   EPSILON_END: 0.001
   TARGET_UPDATE_FREQUENCY: 1000 # Timesteps after which target network is updateds
   BATCH_SIZE: 64
-  CLIP_GRADIENTS: 10
+  CLIP_GRADIENTS: 20
   PRINT_LOSS_EVERY: 100
   
 
