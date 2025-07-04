@@ -1,38 +1,61 @@
 UI_CONFIG:
   # All dimensions are stated in pixels
-  WINDOW_WIDTH: 600
-  WINDOW_HEIGHT: 700 # Including some extra space for title, scores etc.
-  FPS: 1
+  WINDOW_WIDTH: 480
+  WINDOW_HEIGHT: 580 # Including some extra space for title, scores etc.
+  BOARD_DIM: 4  # 4x4 grid for 2048
+  CELL_SIZE_IN_PIXELS: 90
+  EXTRA_WINDOW_HEIGHT: 160  # Space for title and info bands
+  # FPS: 1
   BG_COLOUR: "WHITE"
   TITLE: 
     TEXT: "2048"
     COLOUR: "BLACK"
-    TOP_PADDING: 20
+    HEIGHT: 60
     FONT: 
       NAME: Arial
-      SIZE: 16
-  SCORE:
-    SECTION_HEIGHT: 40
-    COLOUR: "BLACK"
-    BOTTOM_PADDING: 10
-    FONT:
-      NAME: Arial
-      SIZE: 12
+      SIZE: 32
+      STYLE: bold
+  INFO_BAND:
+    HEIGHT: 50
+    PADDING: 10
+    SECTIONS:
+      SCORE:
+        TEXT: "SCORE"
+        COLOUR: "BLACK"
+        FONT:
+          NAME: Arial
+          SIZE: 16
+          STYLE: bold
+      ACTION:
+        TEXT: "ACTION"
+        COLOUR: "BLACK"
+        FONT:
+          NAME: Arial
+          SIZE: 16
+          STYLE: bold
+      HIGH_SCORE:
+        TEXT: "HIGH SCORE"
+        COLOUR: "BLACK"
+        FONT:
+          NAME: Arial
+          SIZE: 16
+          STYLE: bold
   TILE:
     DIM: 90
     PADDING: 10
     FONT:
       NAME: Arial
-      SIZE: 12
+      SIZE: 24
+      STYLE: bold
   BOARD:
-    PADDING: 10
+    PADDING: 15
     FILL: "LIGHT_GREY"
     BORDER:
       FILL: "BLACK"
       THICKNESS: 3
     GRID:
       FILL: "BLACK"
-      THICKNESS: 3
+      THICKNESS: 2
   GAME_OVER_LABEL:
     TEXT: "GAME OVER"
     FILL: "WHITE"
@@ -41,7 +64,7 @@ UI_CONFIG:
       THICKNESS: 5
     FONT:
       NAME: Arial
-      SIZE: 24
+      SIZE: 32
       STYLE: bold
       COLOUR: "RED"
 
