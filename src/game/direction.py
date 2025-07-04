@@ -3,7 +3,10 @@ import numpy as np
 
 
 class Direction(Enum):
-    RIGHT = np.array([1,0])
-    DOWN = np.array([0,1])
-    LEFT = np.array([-1,0])
-    UP = np.array([0,-1])
+    RIGHT = (1, 0)
+    DOWN = (0, 1)
+    LEFT = (-1, 0)
+    UP = (0, -1)
+    
+    def to_numpy(self):
+        return np.array(self.value)
