@@ -87,7 +87,8 @@ class RandomAgent(BaseAgent):
         self.action_space = list(range(self.action_space_n))
     
     def select_action(self, state: np.ndarray, episode: int) -> int:
-        return random.choice(self.action_space)
+        action = random.choice(self.action_space)
+        return list(Action)[action]
 
 
 class DQNAgent(BaseAgent):
@@ -160,12 +161,12 @@ class DQNAgent(BaseAgent):
                     q_values = self.policy_net(state_tensor)
                     action = q_values.max(1)[1].item()
                     logger.debug(f"EXPLOIT - Q-values: {q_values} - Action: {action}")
-                    return action
+                    return list(Action)[action]
             except Exception as e:
                 logger.error(f"Error in action selection: {e}")
                 action = random.randrange(self.action_space_n)
                 logger.warning(f"Fallback random action: {action}")
-                return action
+                return list(Action)[action]
         else:
             action = random.randrange(self.action_space_n)
             logger.debug(f"EXPLORE - Random - Action: {action}")
