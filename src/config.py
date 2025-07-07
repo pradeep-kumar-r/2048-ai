@@ -27,6 +27,8 @@ class ConfigManager:
         cls.file_folder_config["GAME_DATA_FOLDER_PATH"] = Path(cls.file_folder_config["GAME_DATA_FOLDER_PATH"])
         cls.file_folder_config["SCORES_FILE_PATH"] = Path(cls.file_folder_config["SCORES_FILE_PATH"])
     
+        cls.ui_config["ANIMATION_SLEEP"] = 1/(cls.ui_config["ANIMATION_SPEED_FPS"]-1)
+    
     @classmethod
     def get_model_training_config(cls):
         return cls.model_training_config

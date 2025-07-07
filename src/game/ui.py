@@ -11,6 +11,7 @@ class UI:
     def __init__(self,
                  ui_config: Dict[str, Any],
                  board: np.ndarray,
+                 episode: int,
                  high_score: Optional[int] = 0,
                  last_action: Optional[Action] = None):
         pygame.init()
@@ -22,6 +23,7 @@ class UI:
         self.score = np.max(board)
         self.high_score: int = high_score
         self.last_action = last_action
+        self.episode = episode
         
         self.padding = self.ui_config["BOARD"]["PADDING"]
         self.board_pixel_width = self.board_width * self.cell_size
@@ -35,16 +37,16 @@ class UI:
         self.window_height = self.board_pixel_height + self.extra_height
         
         self._initialize_fonts()
-        
-        self._is_initialized = False
         self.screen = None
+        self._initialize_display()
         
+        logger.debug(f"UI initialized with window size: {self.window_width}x{self.window_height}")
+        
+        # Initialize UI elements
         self.title_rect = None
         self.info_band_rect = None
         self.board_rect = None
         self.game_over_rect = None
-        
-        logger.debug(f"UI initialized with window size: {self.window_width}x{self.window_height}")
     
     def _initialize_fonts(self) -> None:
         self.font_title = pygame.font.SysFont(
@@ -88,7 +90,7 @@ class UI:
         pygame.draw.rect(surface, Colour[self.ui_config['BOARD']['BORDER']['FILL']].value,
                      title_section, self.ui_config['BOARD']['BORDER']['THICKNESS'] // 2)
         
-        title_text = self.font_title.render(self.ui_config['TITLE']['TEXT'],
+        title_text = self.font_title.render(f"{self.ui_config['TITLE']['TEXT']} - Episode: {self.episode}",
                                        True, Colour[self.ui_config['TITLE']['COLOUR']].value)
         
         title_rect = title_text.get_rect(center=(self.window_width // 2, title_section.height // 2))
@@ -133,7 +135,7 @@ class UI:
             section_width, title_height, section_width, info_band_height
         )
         action_text = self.font_info.render(
-            f"Action: {self.last_action.name}",
+            f"Action: {self.last_action.name if self.last_action else '-'}",
             True,
             Colour[self.ui_config['INFO_BAND']['SECTIONS']['ACTION']['COLOUR']].value
         )
@@ -147,7 +149,7 @@ class UI:
             2 * section_width, title_height, section_width, info_band_height
         )
         high_score_text = self.font_info.render(
-            f"High Score\n{self.high_score}",
+            f"High: {self.high_score}",
             True,
             Colour[self.ui_config['INFO_BAND']['SECTIONS']['HIGH_SCORE']['COLOUR']].value
         )
@@ -294,24 +296,46 @@ class UI:
         self.score = np.max(board)
         self.high_score = high_score
         self.last_action = last_action
-        logger.debug(f"Updated game state: score={self.score}, high_score={self.high_score}, action={self.last_action.name}")
+        logger.debug(f"Updated game state: score={self.score}, high_score={self.high_score}, action={last_action}")
     
-    def render(self, is_game_over: bool = False) -> None:
-        if not self._is_initialized:
+    def render(self, is_game_over: bool = False) -> bool:
+        """Render the current game state to the screen.
+        
+        Args:
+            is_game_over: Whether to show the game over screen.
+            
+        Returns:
+            bool: True if the game should continue, False if the window was closed.
+        """
+        if self.screen is None:
             self._initialize_display()
+            
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
         
-        self.screen.fill(Colour[self.ui_config["BG_COLOUR"]].value)
+        self.screen.fill(Colour[self.ui_config['BG_COLOUR']].value)
         
-        self.screen, self.title_rect = self._draw_title(self.screen)
-        self.screen, self.info_band_rect = self._draw_info_band(self.screen)
-        self.screen, self.board_rect = self._draw_board(self.screen, self.info_band_rect)
+        _, self.title_rect = self._draw_title(self.screen, self.episode)
+        _, self.info_band_rect = self._draw_info_band(self.screen)
+        _, self.board_rect = self._draw_board(self.screen, self.info_band_rect)
         
         if is_game_over:
-            self.screen, self.game_over_rect = self._game_over_screen(self.screen, self.board_rect)
+            _, self.game_over_rect = self._game_over_screen(self.screen, self.board_rect)
         
         pygame.display.flip()
+        
+        return True
+    
+    def _cleanup_ui(self) -> None:
+        if self.screen is not None:
+            pygame.display.quit()
+            self.screen = None
+        
+        return True
 
     def close(self) -> None:
         logger.debug("Closing pygame UI resources")
+        self._cleanup_ui()
         pygame.quit()
     

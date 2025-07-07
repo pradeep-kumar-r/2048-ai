@@ -1,4 +1,4 @@
-import os
+import time
 from typing import Optional, Dict, Any, Tuple
 import gym
 from gym import spaces
@@ -23,8 +23,9 @@ class _2048Env(gym.Env):
 
         self.game = Game(game_config=self.game_env_config)
         self.last_action: Optional[Action] = None
+        self.board_sequence: list[np.ndarray] = []
         
-        self.episodes_count: int = -1
+        self.episodes_count: int = 0
         self.rewards: float = 0.0
         
         self.headless: bool = True
@@ -96,13 +97,13 @@ class _2048Env(gym.Env):
                 info: A dictionary containing additional information about the state of the environment.
         """
         self.last_action = action
-        reward = 0
+        reward = 0.0
         
         logger.debug(f"Taking action {action}")
-        _, terminated, new_score, has_merged = self.game.step(action)
+        _, terminated, new_score, has_merged, self.board_sequence = self.game.step(action)
         
         # Update rewards accumulated
-        if action not in list(Action.__members__.keys()):
+        if action.name not in list(Action.__members__):
             r = self.model_training_config["REWARDS"]["INVALID_ACTION"]
             reward += r
             logger.debug(f"Invalid action, reward: {r}")
@@ -136,14 +137,16 @@ class _2048Env(gym.Env):
 
     def render(self) -> bool:
         if self.ui is None:
-            self.ui = UI(ui_config=self.ui_config, board=self.game.board)
-        else:
-            self.ui.update_state(board=self.game.board, 
-                               high_score=self.high_score, 
-                               last_action=self.last_action)
+            self.ui = UI(ui_config=self.ui_config, board=self.game.board, episode=self.episodes_count)
+        elif not self.headless and self.ui:
+            time.sleep(self.ui_config["STEP_SLEEP"])
+            for temp_board in self.board_sequence:
+                time.sleep(self.ui_config["ANIMATION_SLEEP"])
+                self.ui.update_state(board=temp_board,
+                                     high_score=self.high_score,
+                                     last_action=self.last_action)
+                _ = self.ui.render(is_game_over=self.game.is_game_over)
         
-        if not self.headless and self.ui:
-            return self.ui.render(is_game_over=self.game.is_game_over)
         return True
 
     def cleanup_ui(self) -> None:

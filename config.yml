@@ -3,8 +3,8 @@ UI_CONFIG:
   BOARD_DIM: 4
   CELL_SIZE_IN_PIXELS: 90
   EXTRA_WINDOW_HEIGHT: 160  # Space for title and info bands
-  FPS: 0.5
-  ANIMATION_SPEED: 10
+  ANIMATION_SPEED_FPS: 5 # Number of frames per second (keep it > 2)
+  STEP_SLEEP: 0.5 # Time to sleep between steps (keep it to 0.5 or higher)
   BG_COLOUR: "WHITE"
   TITLE: 
     TEXT: "2048"

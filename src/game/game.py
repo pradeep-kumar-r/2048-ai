@@ -113,14 +113,18 @@ class Game:
         self.is_game_over = True
         return True
     
-    def step(self, action: Action) -> Tuple[int, bool, int, bool]:
+    def step(self, action: Action) -> Tuple[int, bool, int, bool, list[np.ndarray]]:
+        board_sequence: list[np.ndarray] = []
+        board_sequence.append(self.board.copy())
+        
         if self.is_game_over or self._check_game_over():
             logger.info("Game Over")
             self.is_game_over = True
             return (self.steps_elapsed,
                     self.is_game_over,
                     self.score,
-                    False)
+                    False,
+                    board_sequence)
         
         self.steps_elapsed += 1
     
@@ -131,37 +135,50 @@ class Game:
         
         for i in range(self.game_dim):
             line = transformed_board[i]
+            temp_board = transformed_board.copy()
             
             # Step 2 - Slide all tiles to the LEFT
             slided_line = self._slide_non_zeros(line)
             
-            # Step 3 - Merge tiles
-            merged_line = slided_line.copy()
-            if self._check_merge(Direction.LEFT):
+            temp_board[i] = slided_line
+            board_sequence.append(self._reverse_transform_board(temp_board, direction))
+            
+            # Step 3 - Check for merges, if so merge tiles & reslide all tiles to the LEFT again
+            if not self._check_merge(Direction.LEFT):
+                final_line = slided_line.copy()
+            else:
+                has_merged = True
+                merged_line = slided_line.copy()
                 for j in range(len(slided_line)-1):
                     if slided_line[j] == slided_line[j+1]:
                         merged_line[j] *= 2
                         merged_line[j+1] = 0
+            
+                temp_board[i] = merged_line
+                board_sequence.append(self._reverse_transform_board(temp_board, direction))
                     
-            # Step 4 - Slide all tiles to the left again
-            final_line = self._slide_non_zeros(merged_line)
+                final_line = self._slide_non_zeros(merged_line)
+            
+                temp_board[i] = final_line
+                board_sequence.append(self._reverse_transform_board(temp_board, direction))
             
             transformed_board[i] = final_line
         
         self.board = self._reverse_transform_board(transformed_board, direction)    
         
-        # Step 5 - Generate a new tile
+        board_sequence.append(self.board.copy())
+        
+        # Step 4 - Generate a new tile
         _ = self._generate_tile()
         
-        new_score = np.max(self.board)
-        if new_score > self.score:
-            has_merged = True
-            self.score = new_score
-            
+        board_sequence.append(self.board.copy())
+        
+        self.score = np.max(self.board)
         return (self.steps_elapsed,
                 self.is_game_over,
                 self.score,
-                has_merged)
+                has_merged,
+                board_sequence)
 
     def get_game_state(self) -> Dict[Any, Any]:
         game_state = {
