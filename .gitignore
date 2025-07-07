@@ -193,3 +193,4 @@ data/*.*
 reports/*.*
 screenshots/*.*
 .DS_Store
+ui_with_animation.txt

@@ -3,7 +3,7 @@ UI_CONFIG:
   BOARD_DIM: 4
   CELL_SIZE_IN_PIXELS: 90
   EXTRA_WINDOW_HEIGHT: 160  # Space for title and info bands
-  FPS: 60
+  FPS: 0.5
   ANIMATION_SPEED: 10
   BG_COLOUR: "WHITE"
   TITLE: 
@@ -78,7 +78,7 @@ FILE_FOLDER_CONFIG:
   MODEL_FOLDER_PATH: "models"
   MODEL_NAME_PREFIX: "ai_model_"
   GAME_DATA_FOLDER_PATH: "data"
-  SCORES_FILE_PATH: "data/game_scores.txt"
+  SCORES_FILE_PATH: "data/game_scores.csv"
   LOGS_FOLDER_PATH: "logs"
 
 MODEL_TRAINING_CONFIG: # Change during actual PROD

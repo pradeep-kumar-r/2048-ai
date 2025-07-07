@@ -105,7 +105,7 @@ class DQNAgent(BaseAgent):
         self.model_dir = self.file_folder_config["MODEL_FOLDER_PATH"]
         self.model_name_prefix = self.file_folder_config["MODEL_NAME_PREFIX"]
         
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("mps" if torch.mps.is_available() else "cpu")
         logger.info(f"DQNAgent using device: {self.device}")
         
         self.run_start_time = datetime.now().strftime("%Y%m%d_%H%M")
@@ -159,7 +159,7 @@ class DQNAgent(BaseAgent):
                 with torch.no_grad():
                     state_tensor = torch.FloatTensor(state).unsqueeze(0).to(self.device)
                     q_values = self.policy_net(state_tensor)
-                    action = q_values.max(1)[1].item()
+                    action = torch.argmax(q_values, dim=1).item()
                     logger.debug(f"EXPLOIT - Q-values: {q_values} - Action: {action}")
                     return list(Action)[action]
             except Exception as e:

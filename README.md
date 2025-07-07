@@ -17,7 +17,8 @@ This project implements a Reinforcement Learning (RL) agent trained to play the 
 ├── README.md           # Project overview and instructions
 
 
-## Technologies Used
-ML: PyTorch
-UI: Tkinter
+## Libraries Used
+RL Agent: PyTorch
+Game UI: Pygame
 Logging: Loguru
+Metrics/Report Visualisation: Plotly

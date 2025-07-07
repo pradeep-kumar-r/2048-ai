@@ -38,11 +38,11 @@ class NNModel(nn.Module):
                 nn.init.xavier_uniform_(m.weight)
                 nn.init.constant_(m.bias, 0)
                 
-    def _log_2_transform(self, x: torch.Tensor) -> torch.Tensor:
-        return torch.log2(x + 1)
+    def _input_transform(self, x: torch.Tensor) -> torch.Tensor:
+        return torch.log2(x + 1) / 17
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self._log_2_transform(x)
+        x = self._input_transform(x)
         residual_input = x
         
         # Feed Forward Layer 1 (Inputs)

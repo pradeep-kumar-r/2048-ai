@@ -26,7 +26,7 @@ class Game:
         self.board = np.zeros((self.game_dim, self.game_dim))
         self.is_game_over = False
         self.score = np.max(self.board)
-        self.steps_elapsed += 1
+        self.steps_elapsed = 0
         self.start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self._start_new_game()
 
@@ -53,19 +53,18 @@ class Game:
             self.board[pos] = self._generate_tile_value()
             return True
 
-    @jit(nopython=True)
     def _start_new_game(self) -> None:
         for _ in range(2):
             assert self._generate_tile()
 
-    @jit(nopython=True)
     def _check_merge(self, direction: Direction) -> bool:
         for i in range(self.game_dim):
             for j in range(self.game_dim):
                 new_i = i + direction.value[0]
                 new_j = j + direction.value[1]
-                if self.board[i][j] == self.board[new_i][new_j]:
-                    return True
+                if new_i >= 0 and new_i < self.game_dim and new_j >= 0 and new_j < self.game_dim:
+                    if self.board[i][j] == self.board[new_i][new_j]:
+                        return True
         return False
 
     def _transform_board(self, direction: Direction) -> np.ndarray:
@@ -96,18 +95,28 @@ class Game:
         non_zeros = ~zeros
         return np.concatenate([line[non_zeros], line[zeros]])
 
-    @jit(nopython=True)
-    def step(self, action: Action) -> Tuple[int, bool, int, bool]:
-        if self.is_game_over:
-            logger.info("Game Over")
-            return (self.steps_elapsed,
-                    self.is_game_over,
-                    self.score,
-                    False)
+    def _check_game_over(self) -> bool:
         
-        if np.all(self.board != 0) and not self._check_merge(action):
+        if np.max(self.board) >= 131072:
             self.is_game_over = True
-            logger.info("Can't move, Game Over")
+            return True
+        
+        if np.min(self.board) == 0:
+            self.is_game_over = False
+            return False
+        
+        for action in Action.__members__:
+            if self._check_merge(Direction[action]):
+                self.is_game_over = False
+                return False
+        
+        self.is_game_over = True
+        return True
+    
+    def step(self, action: Action) -> Tuple[int, bool, int, bool]:
+        if self.is_game_over or self._check_game_over():
+            logger.info("Game Over")
+            self.is_game_over = True
             return (self.steps_elapsed,
                     self.is_game_over,
                     self.score,
@@ -115,7 +124,7 @@ class Game:
         
         self.steps_elapsed += 1
     
-        # Step 1 - transform the board as per the direction of the action
+        # Step 1 - transform the board as per the direction of the action as though the action direction is always LEFT
         direction = Direction[action.name]
         transformed_board = self._transform_board(direction)
         has_merged = False
@@ -123,15 +132,16 @@ class Game:
         for i in range(self.game_dim):
             line = transformed_board[i]
             
-            # Step 2 - Slide all tiles to the left
+            # Step 2 - Slide all tiles to the LEFT
             slided_line = self._slide_non_zeros(line)
             
             # Step 3 - Merge tiles
             merged_line = slided_line.copy()
-            for j in range(len(slided_line)-1):
-                if slided_line[j] == slided_line[j+1]:
-                    merged_line[j] *= 2
-                    merged_line[j+1] = 0
+            if self._check_merge(Direction.LEFT):
+                for j in range(len(slided_line)-1):
+                    if slided_line[j] == slided_line[j+1]:
+                        merged_line[j] *= 2
+                        merged_line[j+1] = 0
                     
             # Step 4 - Slide all tiles to the left again
             final_line = self._slide_non_zeros(merged_line)
@@ -139,6 +149,9 @@ class Game:
             transformed_board[i] = final_line
         
         self.board = self._reverse_transform_board(transformed_board, direction)    
+        
+        # Step 5 - Generate a new tile
+        _ = self._generate_tile()
         
         new_score = np.max(self.board)
         if new_score > self.score:
@@ -150,18 +163,21 @@ class Game:
                 self.score,
                 has_merged)
 
+    def get_game_state(self) -> Dict[Any, Any]:
+        game_state = {
+            "game_id": str(uuid4()),
+            "is_game_over": self.is_game_over,
+            "created_at": self.start_time,
+            "updated_at": datetime.now(),
+            "steps_elapsed": self.steps_elapsed, 
+            "score": self.score,
+            "is_game_won": self.score >= 2048,
+            "board": self.board,
+        }
+        return game_state
+    
     def get_final_game_state(self) -> Dict[Any, Any]:
         if self.is_game_over:
-            final_game_state = {
-                "game_id": str(uuid4()),
-                "is_game_over": self.is_game_over,
-                "created_at": self.start_time,
-                "ended_at": datetime.now(),
-                "steps_elapsed": self.steps_elapsed, 
-                "score": self.score,
-                "is_game_won": self.score >= 2048,
-                "board": self.board,
-            }
-            return final_game_state
+            return self.get_game_state()
         else:
-            return dict()
+            return {}
