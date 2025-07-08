@@ -316,7 +316,7 @@ class UI:
         
         self.screen.fill(Colour[self.ui_config['BG_COLOUR']].value)
         
-        _, self.title_rect = self._draw_title(self.screen, self.episode)
+        _, self.title_rect = self._draw_title(self.screen)
         _, self.info_band_rect = self._draw_info_band(self.screen)
         _, self.board_rect = self._draw_board(self.screen, self.info_band_rect)
         

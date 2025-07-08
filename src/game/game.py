@@ -3,7 +3,7 @@ from uuid import uuid4
 from datetime import datetime
 from typing import Optional, Tuple, Dict, Any
 import numpy as np
-from numba import jit
+from src.utils import deduplicate_array_sequence
 from src.game.action import Action
 from src.game.direction import Direction
 from src.logger import logger
@@ -149,10 +149,13 @@ class Game:
             else:
                 has_merged = True
                 merged_line = slided_line.copy()
-                for j in range(len(slided_line)-1):
-                    if slided_line[j] == slided_line[j+1]:
-                        merged_line[j] *= 2
-                        merged_line[j+1] = 0
+                j = len(slided_line) - 1
+                while j > 0:
+                    if slided_line[j] == slided_line[j-1]:
+                        merged_line[j-1] *= 2
+                        merged_line[j] = 0
+                        j -= 1
+                    j -= 1
             
                 temp_board[i] = merged_line
                 board_sequence.append(self._reverse_transform_board(temp_board, direction))
@@ -165,14 +168,12 @@ class Game:
             transformed_board[i] = final_line
         
         self.board = self._reverse_transform_board(transformed_board, direction)    
-        
         board_sequence.append(self.board.copy())
         
         # Step 4 - Generate a new tile
         _ = self._generate_tile()
-        
         board_sequence.append(self.board.copy())
-        
+        board_sequence = deduplicate_array_sequence(board_sequence)
         self.score = np.max(self.board)
         return (self.steps_elapsed,
                 self.is_game_over,

@@ -41,7 +41,8 @@ def cleanup_data_log_files():
 
 def main(cleanup_files: bool = False):
     # MAIN TRAINING LOOP
-    cleanup_data_log_files()
+    if cleanup_files:
+        cleanup_data_log_files()
     
     # Get configuration
     model_training_config = app_config.get_model_training_config()
@@ -66,7 +67,7 @@ def main(cleanup_files: bool = False):
             logger.info(f"Episode {env.episodes_count}/{max_episodes}")
             logger.debug(f"Initial state: {info}")
             
-            for step in range(1, max_steps_per_episode + 1):
+            for step in range(max_steps_per_episode):
                 action_taken = agent.select_action(obs, env.episodes_count)
                 obs, _, terminated, truncated, info = env.step(action_taken)
                 loss = f"{agent.loss:.4f}" if agent.loss else "inf"
@@ -83,7 +84,7 @@ def main(cleanup_files: bool = False):
             if not running:
                 break
                 
-            logger.info(f"Episode {env.episodes_count}/{max_episodes} finished after {step} steps, with score {env.game.score}")
+            logger.info(f"Episode {env.episodes_count}/{max_episodes} finished after {step + 1} steps, with score {env.game.score}")
             logger.info(f"Total reward: {env.rewards}")
             logger.info(f"High score: {env.high_score}")
             logger.debug(f"Final state: {info}")
@@ -94,42 +95,47 @@ def main(cleanup_files: bool = False):
     
     except KeyboardInterrupt:
         logger.info("Training interrupted by user")
-    # except Exception as e:
-    #     logger.error(f"Error during training: {e}")
+    except Exception as e:
+        logger.error(f"Error during training: {e}")
     finally:
         env.cleanup_ui()
 
 
-def mock_main():
-    import numpy as np
-    from src.game.game import Game
-    from src.game.action import Action
-    _2048_game = Game(game_config=app_config.get_game_env_config())
-    for episode in range(2):
-        _2048_game.reset()
-        print(f"Episode {episode+1}")
-        _2048_game.board = np.array([
-                [2, 0, 0, 0],
-                [2, 0, 0, 0],
-                [2, 0, 0, 0],
-                [2, 0, 0, 0],
-            ])
-        for step in range(10):
-            print(f"\n\nStep: {step}\nBoard:\n")
-            print(_2048_game.board)
-            user_input = input("Enter action: (RIGHT, LEFT, UP, DOWN):\n")
-            while user_input not in Action.__members__:
-                user_input = input("Invalid Input!! Enter action: (RIGHT, LEFT, UP, DOWN):\n")
-            _, game_over, score, has_merged, board_sequence = _2048_game.step(Action[user_input])
-            print("Has merged" if has_merged else "")
-            print(f"Score: {score}")
-            print("Board Sequence:")
-            for temp_board in board_sequence:
-                print(temp_board)
-            if game_over:
-                break
-
-
 if __name__ == "__main__":
-    # main(cleanup_files=True)
-    mock_main()
+    main()
+    # mock_main()
+    
+    
+    
+    
+    
+
+    
+# def mock_main():
+#     import numpy as np
+#     from src.game.game import Game
+#     from src.game.action import Action
+#     _2048_game = Game(game_config=app_config.get_game_env_config())
+#     for episode in range(2):
+#         _2048_game.reset()
+#         print(f"Episode {episode+1}")
+#         _2048_game.board = np.array([
+#                 [2, 0, 0, 0],
+#                 [2, 0, 0, 0],
+#                 [2, 0, 0, 0],
+#                 [2, 0, 0, 0],
+#             ])
+#         for step in range(10):
+#             print(f"\n\nStep: {step}\nBoard:\n")
+#             print(_2048_game.board)
+#             user_input = input("Enter action: (RIGHT, LEFT, UP, DOWN):\n")
+#             while user_input not in Action.__members__:
+#                 user_input = input("Invalid Input!! Enter action: (RIGHT, LEFT, UP, DOWN):\n")
+#             _, game_over, score, has_merged, board_sequence = _2048_game.step(Action[user_input])
+#             print("Has merged" if has_merged else "")
+#             print(f"Score: {score}")
+#             print("Board Sequence:")
+#             for temp_board in board_sequence:
+#                 print(temp_board)
+#             if game_over:
+#                 break
