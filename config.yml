@@ -1,0 +1,108 @@
+UI_CONFIG:
+  # All dimensions are stated in pixels
+  BOARD_DIM: 4
+  CELL_SIZE_IN_PIXELS: 90
+  EXTRA_WINDOW_HEIGHT: 160  # Space for title and info bands
+  ANIMATION_SPEED_FPS: 4 # Number of frames per second (keep it > 2)
+  STEP_SLEEP: 0.5 # Time to sleep between steps (keep it to 0.5 or higher)
+  BG_COLOUR: "WHITE"
+  TITLE: 
+    TEXT: "2048"
+    COLOUR: "BLACK"
+    HEIGHT: 60
+    FONT: 
+      NAME: Arial
+      SIZE: 32
+      STYLE: bold
+  INFO_BAND:
+    HEIGHT: 50
+    PADDING: 10
+    SECTIONS:
+      SCORE:
+        TEXT: "SCORE"
+        COLOUR: "BLACK"
+        FONT:
+          NAME: Arial
+          SIZE: 16
+          STYLE: bold
+      ACTION:
+        TEXT: "ACTION"
+        COLOUR: "BLACK"
+        FONT:
+          NAME: Arial
+          SIZE: 16
+          STYLE: bold
+      HIGH_SCORE:
+        TEXT: "HIGH SCORE"
+        COLOUR: "BLACK"
+        FONT:
+          NAME: Arial
+          SIZE: 16
+          STYLE: bold
+  TILE:
+    DIM: 90
+    PADDING: 10
+    FONT:
+      NAME: Arial
+      SIZE: 24
+      STYLE: bold
+  BOARD:
+    PADDING: 15
+    FILL: "LIGHT_GREY"
+    BORDER:
+      FILL: "BLACK"
+      THICKNESS: 3
+    GRID:
+      FILL: "BLACK"
+      THICKNESS: 2
+  GAME_OVER_LABEL:
+    TEXT: "GAME OVER"
+    FILL: "WHITE"
+    BORDER:
+      FILL: "RED"
+      THICKNESS: 5
+    FONT:
+      NAME: Arial
+      SIZE: 32
+      STYLE: bold
+      COLOUR: "RED"
+
+GAME_ENV_CONFIG:
+  TILES_PER_ROW: 4
+  SLEEP_PER_TIMESTEP: 0.9
+  EPISODES_PER_RENDER: 50
+  2_TILE_PROBABILITY: 0.9
+  4_TILE_PROBABILITY: 0.1 # 1 - (2 tile probability)
+    
+FILE_FOLDER_CONFIG:
+  MODEL_FOLDER_PATH: "models"
+  MODEL_NAME_PREFIX: "ai_model_"
+  GAME_DATA_FOLDER_PATH: "data"
+  SCORES_FILE_PATH: "data/game_scores.csv"
+  LOGS_FOLDER_PATH: "logs"
+
+MODEL_TRAINING_CONFIG: # Change during actual PROD
+  NUM_ACTIONS: 4
+  REWARDS:
+    MERGE: 50.0
+    WIN: 1000.0
+    LOSE: -1000.0
+    ACTION: -10.0
+    INVALID_ACTION: -25.0
+    WIN_WITH_NEW_HIGH_SCORE: 5000.0
+  MAX_TRAINING_EPISODES: 50000
+  MAX_TIMESTEPS_PER_EPISODE: 3000
+  EPISODES_PER_CHECKPOINT: 100
+  LEARNING_RATE: 0.0001
+  REPLAY_MEMORY_SIZE: 256
+  GAMMA: 0.995
+  EPSILON_START: 1
+  EPSILON_DECAY: 0.995
+  EPSILON_END: 0.001
+  TARGET_UPDATE_FREQUENCY: 10 # Episodes after which target network is updateds
+  BATCH_SIZE: 64
+  CLIP_GRADIENTS: 20
+  PRINT_LOSS_EVERY: 100
+  
+
+
